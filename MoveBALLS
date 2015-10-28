@@ -1,1 +1,205 @@
+package com.example.moveballs;
 
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.os.CountDownTimer;
+import android.view.View;
+import android.view.MotionEvent;
+
+public class MoveBaLLs extends View {
+    int delay = 20; //частота обновления кадра
+    int transparency = 0;
+    int N = 15, s = 0, k = 0, si = 0, k1= 0, k2=0, a=0, g;
+    boolean flag = true;
+    double [] vol = new double[N];
+    int[] radius = new int[N];
+    int[] x = new int[N];
+    int[] y = new int[N];
+    int[] x2 = new int[N];
+    int[] y2 = new int[N];
+    int[] vx = new int[N];
+    int[] vy = new int[N];
+    int[][] color = new int[3][N];
+
+    int xto = 400;
+    int yto = 600;
+
+    int rand(int min, int max) {
+        return (int) (Math.random() * (max - min + 1)) + min;
+    }
+
+    void fillArrayRandom(int[] a, int min, int max) {
+        for (int i = 0; i < a.length; i++) {
+            a[i] = rand(min, max);
+        }
+    }
+
+    void RadiusRandom(int[] a, int min, int max) {
+        for (int i = 0; i < a.length; i++) {
+            a[i] = 5 * rand(min, max);
+        }
+    }
+
+    void colorgen(int[][] a) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[i].length; j++) {
+                a[i][j] = rand(0, 255);
+            }
+        }
+    }
+
+    void Array(int[] a, int[]b) {
+        for (int j = 0; j < a.length; j++) {
+            a[j] = 250;
+            b[j] = a[j];
+        }
+    }
+
+    void Array(double[] a) {
+        for (int j = 0; j < a.length; j++) {
+            a[j] = 0;
+        }
+    }
+
+    void makeBalls() {
+        Array(vol);
+        Array(x,x2);
+        Array(y,y2);
+        RadiusRandom(radius, 5, 15);
+        fillArrayRandom(vx, -10, 10);
+        fillArrayRandom(vy, -10, 10);
+        colorgen(color);
+    }
+
+
+    boolean returnballsX(int a, double radius){                   //Создан для отталкивания по X
+        if (a < radius || a > this.getWidth() - radius)
+            return true;
+        else
+            return false;
+    }
+
+    boolean returnballsY(int a, double radius){                   //Создан для отталкивания по Y
+        if (a < radius || a > this.getHeight() - radius)
+            return true;
+        else
+            return false;
+    }
+
+
+    int movetopoint (int startcoordinate, int end_coordinate){       //изменяет координату для приближения к нужным координатам
+        int velocity = 1;
+            if(startcoordinate < end_coordinate)
+                startcoordinate += velocity;
+            else if (startcoordinate > end_coordinate)
+                startcoordinate -= velocity;
+        return startcoordinate;
+    }
+
+    int changetransparency(int transparency, int min, int max){   //Изменяет прозрачность объекта
+        if(flag) {
+            transparency ++;
+            if (transparency == max)
+                flag = false;
+        }
+        if (!flag) {
+            transparency--;
+            if (transparency == min)
+                flag = true;
+        }
+        return transparency;
+    }
+
+    int time = 0;
+
+    void moveBallsRand() {
+        for (int i = 0; i < N; i++) {
+            if (returnballsX(x[i], radius[i])) {
+                vx[i] = -vx[i];
+            }
+            x[i] += vx[i];
+            if (returnballsY(y[i], radius[i])) {
+                vy[i] = -vy[i];
+            }
+            y[i] += vy[i];
+
+            if (k == 0) {
+                s++;
+                if (s == 1023)
+                    k = 1;
+            } else {
+                s--;
+                if (s == 500)
+                    k = 0;
+            }
+            si = s / 4;
+
+            if (k2 == 0) {
+                a++;
+                if (a == 700)
+                    k2 = 1;
+            } else {
+                a--;
+                if (a == -700)
+                    k2 = 0;
+            }
+            vol[i] += 0.20136 / 8;
+            g = a / 50;
+        }
+    }
+
+    void movetopoint (){
+        for (int i = 0; i < N; i++) {
+            x[i] = movetopoint(x[i], xto);
+            y[i] = movetopoint(y[i], yto);
+        }
+    }
+
+    void moveBalls() {
+        transparency = changetransparency(transparency, 0, 255);       //изменение прозрачности
+        if ( time/1000 < 5)
+            moveBallsRand();
+        else
+            movetopoint();
+    }
+
+    MoveBaLLs(Context context) {
+        super(context);
+        makeBalls();
+        MyTimer timer = new MyTimer();
+        timer.start();
+    }
+
+    protected void onDraw(Canvas canvas) {
+        Paint paint = new Paint();
+        for (int i = 0; i < N; i++) {
+            paint.setARGB(changetransparency(transparency, 0, 255), color[0][i], color[1][i], color[2][i]);
+            canvas.drawCircle(x[i], y[i], radius[i], paint);
+
+            //canvas.drawCircle(x[i], y[i], (float) (radius[i]+(Math.sin(Math.PI*vol[i]))*5), paint);
+            //canvas.drawCircle(movetopoint(x[i], xto),movetopoint(y[i], yto), radius[i], paint);
+            //canvas.drawRect(x[i],y[i],x2[i],y2[i], paint);
+            //canvas.drawRect(0,0,30,40, paint);
+        }
+    }
+
+    void nextFrame() {
+        moveBalls();
+        invalidate();
+    }
+
+    class MyTimer extends CountDownTimer {
+        MyTimer() {
+            super(100000, delay);
+        }
+
+        public void onTick(long millisUntilFinished) {
+            nextFrame();
+            time += 20;
+        }
+
+        public void onFinish() {
+        }
+    }
+}
