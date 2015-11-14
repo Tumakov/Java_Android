@@ -18,7 +18,6 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         super.onCreate(savedInstanceState);
         CB = new Creatingballs(this);
         CB.setOnTouchListener(this);
-        tv = new TextView(this);
         setContentView(CB);
         Toast.makeText(getApplicationContext(), "by EvTUM", Toast.LENGTH_LONG).show();
         Toast.makeText(getApplicationContext(), "Нажмите на экранъ\n осталось " + Integer.toString(CB.N) + "шариков", Toast.LENGTH_LONG).show();
