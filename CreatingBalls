@@ -20,7 +20,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         CB.setOnTouchListener(this);
         setContentView(CB);
         Toast.makeText(getApplicationContext(), "by EvTUM", Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(), "Нажмите на экранъ\n осталось " + Integer.toString(CB.N) + "шариков", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Нажмите на экран\n осталось " + Integer.toString(CB.N) + " шариков", Toast.LENGTH_LONG).show();
     }
     
     @Override
@@ -35,7 +35,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             case MotionEvent.ACTION_UP:
                 if (CB.K < CB.N - 1) {
                     CB.K++;
-                    Toast.makeText(getApplicationContext(), Integer.toString(CB.N - CB.K), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Осталось " + Integer.toString(CB.N - CB.K), Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Toast.makeText(getApplicationContext(), "Количество шариков ограничено, и оно подошло к концу\n v1.1", Toast.LENGTH_LONG).show();
