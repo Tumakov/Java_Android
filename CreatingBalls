@@ -47,3 +47,103 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         return true;
     }
 }
+
+
+
+
+package com.example.crtbls;
+
+        import android.content.Context;
+        import android.graphics.Canvas;
+        import android.graphics.Paint;
+        import android.os.CountDownTimer;
+        import android.view.View;
+
+
+public class Creatingballs extends View {
+    int K = -1;
+    int n = -1;
+    int N = 6;
+    int[] radius = new int[N];
+    float[] x = new float[N];
+    float[] y = new float[N];
+    int[] vx = new int[N];
+    int[] vy = new int[N];
+    int[][] color = new int[3][N];
+    boolean[] flag = new boolean[N];
+
+    int rand(int min, int max) {
+        return (int) (Math.random() * (max - min + 1)) + min;
+    }
+
+    void makeBalls(float newx, float newy) {
+        x[n] = newx;
+        y[n] = newy;
+        vx[n] = rand(-10, 10);
+        vy[n] = rand(-10, 10);
+        radius[n] = rand(40, 80);
+        for (int i = 0; i < 3; i++) {
+            color[i][n] = rand(0, 255);
+        }
+    }
+
+    void ChecknewBalls() {
+        if (K > n && K < N) {
+            n++;
+            makeBalls(MainActivity.X, MainActivity.Y);
+        }
+    }
+
+    void moveBalls() {
+        for (int i = 0; i <= n; i++) {
+            flag[i] = true;
+            if (x[i] >= radius[i] && x[i] <= this.getWidth() - radius[i] && y[i] >= radius[i] && y[i] <= this.getHeight() - radius[i])
+                flag[i] = false;
+            if (flag[i]) {
+                if (x[i] < radius[i] && vx[i] < 0)
+                    vx[i] = -vx[i];
+                if (x[i] > this.getWidth() - radius[i] && vx[i] > 0)
+                    vx[i] = -vx[i];
+                if (y[i] < radius[i] && vy[i] < 0)
+                    vy[i] = -vy[i];
+                if (y[i] > this.getHeight() - radius[i] && vy[i] > 0)
+                    vy[i] = -vy[i];
+            }
+            x[i] += vx[i];
+            y[i] += vy[i];
+        }
+    }
+
+    Creatingballs(Context context) {
+        super(context);
+        MyTimer timer = new MyTimer();
+        timer.start();
+    }
+
+    protected void onDraw(Canvas canvas) {
+        Paint paint = new Paint();
+        for (int i = 0; i <= n; i++) {
+            paint.setARGB(200, color[0][i], color[1][i], color[2][i]);
+            canvas.drawCircle(x[i], y[i], radius[i], paint);
+        }
+    }
+
+    void nextFrame() {
+        ChecknewBalls();
+        moveBalls();
+        invalidate();
+    }
+
+    class MyTimer extends CountDownTimer {
+        MyTimer() {
+            super(200000, 20);
+        }
+
+        public void onTick(long millisUntilFinished) {
+            nextFrame();
+        }
+
+        public void onFinish() {
+        }
+    }
+}
