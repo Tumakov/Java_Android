@@ -1,145 +1,49 @@
-package com.example.crtbls;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements View.OnTouchListener {
 
     Creatingballs CB;
 
-    static float X = 30;
-    static float Y = 30;
+    static float X = 0;
+    static float Y = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         CB = new Creatingballs(this);
         CB.setOnTouchListener(this);
+        tv = new TextView(this);
         setContentView(CB);
+        Toast.makeText(getApplicationContext(), "by EvTUM", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Нажмите на экранъ\n осталось " + Integer.toString(CB.N) + "шариков", Toast.LENGTH_LONG).show();
     }
-
+    
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN: // нажатие
+            case MotionEvent.ACTION_DOWN:
                 break;
-            case MotionEvent.ACTION_MOVE: // движение
+            case MotionEvent.ACTION_MOVE:
                 X = event.getX();
                 Y = event.getY();
                 break;
-            case MotionEvent.ACTION_UP: // отпускание
-                CB.K ++;
+            case MotionEvent.ACTION_UP:
+                if (CB.K < CB.N - 1) {
+                    CB.K++;
+                    Toast.makeText(getApplicationContext(), Integer.toString(CB.N - CB.K), Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Количество шариков ограничено, и оно подошло к концу\n v1.1", Toast.LENGTH_LONG).show();
+                    this.finish();
+                }
                 break;
         }
         return true;
-    }
-}
-
-
-
-package com.example.crtbls;
-
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.os.CountDownTimer;
-import android.view.View;
-import android.view.MotionEvent;
-
-public class Creatingballs extends View {
-    int K = -1;
-    int n = -1;
-    int N = 20;
-    int[] radius = new int[N];
-    float[] x = new float[N];
-    float[] y = new float[N];
-    int[] vx = new int[N];
-    int[] vy = new int[N];
-    int[][] color = new int[3][N];
-
-    int rand(int min, int max) {
-        return (int) (Math.random() * (max - min + 1)) + min;
-    }
-
-    void makeBalls(float newx, float newy) {
-        x[n] = newx;
-        y[n] = newy;
-        vx[n] = rand(-10, 10);
-        vy[n] = rand(-10, 10);
-        radius[n] = rand(40, 80);
-        for (int i = 0; i < 3; i++) {
-            color[i][n] = rand(0, 255);
-        }
-    }
-
-
-    boolean returnballsX(float a, double radius){
-        if (a < radius || a > this.getWidth() - radius)
-            return true;
-        else
-            return false;
-    }
-
-    boolean returnballsY(float a, double radius){
-        if (a < radius || a > this.getHeight() - radius)
-            return true;
-        else
-            return false;
-    }
-
-    void ChecknewBalls(){
-        if(K > n && K < N){
-            n++;
-            makeBalls(MainActivity.X, MainActivity.Y);
-        }
-    }
-
-    void moveBalls() {
-        for (int i = 0; i <= n; i++) {
-            if (returnballsX(x[i], radius[i])) {
-                vx[i] = -vx[i];
-            }
-            x[i] += vx[i];
-            if (returnballsY(y[i], radius[i])) {
-                vy[i] = -vy[i];
-            }
-            y[i] += vy[i];
-        }
-    }
-
-    Creatingballs(Context context) {
-        super(context);
-        MyTimer timer = new MyTimer();
-        timer.start();
-    }
-
-    protected void onDraw(Canvas canvas) {
-        Paint paint = new Paint();
-        for (int i = 0; i <= n; i++) {
-            paint.setARGB(200, color[0][i], color[1][i], color[2][i]);
-            canvas.drawCircle(x[i], y[i], radius[i], paint);
-        }
-    }
-
-    void nextFrame() {
-        ChecknewBalls();
-        moveBalls();
-        invalidate();
-    }
-
-    class MyTimer extends CountDownTimer {
-        MyTimer() {
-            super(100000, 20);
-        }
-
-        public void onTick(long millisUntilFinished) {
-            nextFrame();
-        }
-
-        public void onFinish() {
-        }
     }
 }
